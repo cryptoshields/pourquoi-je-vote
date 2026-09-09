@@ -1,4 +1,39 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+
+/* Point de bascule mobile → bureau. En dessous : mise en page mobile
+   d'origine (colonne unique). Au-dessus : mise en page bureau élargie. */
+const WIDE_BP = 768;
+
+function useIsWide(bp = WIDE_BP) {
+  const read = () => (typeof window !== "undefined" ? window.innerWidth >= bp : false);
+  const [wide, setWide] = useState(read);
+  useEffect(() => {
+    const onResize = () => setWide(read());
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return wide;
+}
+
+/* Normalise pour la recherche : minuscules, sans accents. */
+const norm = (s) =>
+  (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+/* Met en évidence le terme recherché dans un texte. */
+function highlight(text, term) {
+  const t = (term || "").trim();
+  if (!t) return text;
+  const esc = t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return text.split(new RegExp(`(${esc})`, "ig")).map((part, i) =>
+    part.toLowerCase() === t.toLowerCase() ? (
+      <mark key={i} style={{ background: "#FDECC8", color: "inherit", padding: "0 1px", borderRadius: 2 }}>
+        {part}
+      </mark>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    )
+  );
+}
 
 /* ---------------------------------------------------------
    DONNÉES — Élections générales québécoises, 5 octobre 2026
@@ -238,7 +273,7 @@ function Tag({ children, color }) {
   );
 }
 
-function PartyCard({ party, expanded, onToggle }) {
+function PartyCard({ party, expanded, onToggle, wide }) {
   return (
     <div
       style={{
@@ -284,17 +319,25 @@ function PartyCard({ party, expanded, onToggle }) {
       </button>
 
       {expanded && (
-        <div style={{ padding: "4px 16px 18px", borderTop: "1px solid #EFEDE3" }}>
-          {Object.entries(THEME_LABELS).map(([key, label]) => (
-            <div key={key} style={{ padding: "12px 0", borderBottom: "1px solid #F1EFE6" }}>
-              <div style={{ fontSize: 12.5, fontWeight: 700, color: party.color, marginBottom: 4 }}>
-                {label}
+        <div style={{ padding: wide ? "4px 22px 22px" : "4px 16px 18px", borderTop: "1px solid #EFEDE3" }}>
+          <div
+            style={{
+              display: wide ? "grid" : "block",
+              gridTemplateColumns: wide ? "1fr 1fr" : undefined,
+              columnGap: 26,
+            }}
+          >
+            {Object.entries(THEME_LABELS).map(([key, label]) => (
+              <div key={key} style={{ padding: "12px 0", borderBottom: "1px solid #F1EFE6" }}>
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: party.color, marginBottom: 4 }}>
+                  {label}
+                </div>
+                <div style={{ fontSize: 14.5, color: "#3A3A34", lineHeight: 1.55 }}>
+                  {party.themes[key]}
+                </div>
               </div>
-              <div style={{ fontSize: 14.5, color: "#3A3A34", lineHeight: 1.55 }}>
-                {party.themes[key]}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
 
           <div style={{ marginTop: 6, padding: "13px 14px", background: "#FBF9F3", borderRadius: 3, border: "1px solid #EFEDE3" }}>
             <div style={{ fontSize: 12.5, fontWeight: 700, color: "#5B5648", marginBottom: 5, display: "flex", alignItems: "center", gap: 6 }}>
@@ -312,15 +355,17 @@ function PartyCard({ party, expanded, onToggle }) {
 
 function FichesView() {
   const [openId, setOpenId] = useState(null);
+  const wide = useIsWide();
   return (
-    <div>
+    <div style={{ maxWidth: wide ? 900 : undefined }}>
       <p style={{ fontSize: 14.5, color: "#5B5648", lineHeight: 1.6, margin: "4px 0 18px" }}>
-        Touchez un parti pour voir ses engagements, enjeu par enjeu, résumés en langage simple.
+        {wide ? "Cliquez" : "Touchez"} un parti pour voir ses engagements, enjeu par enjeu, résumés en langage simple.
       </p>
       {PARTIES.map((p) => (
         <PartyCard
           key={p.id}
           party={p}
+          wide={wide}
           expanded={openId === p.id}
           onToggle={() => setOpenId(openId === p.id ? null : p.id)}
         />
@@ -332,13 +377,23 @@ function FichesView() {
 function CompareView() {
   const themeKeys = [...Object.keys(THEME_LABELS), "critique"];
   const [theme, setTheme] = useState(themeKeys[0]);
+  const wide = useIsWide();
 
   return (
     <div>
       <p style={{ fontSize: 14.5, color: "#5B5648", lineHeight: 1.6, margin: "4px 0 14px" }}>
         Choisissez un enjeu pour voir, côte à côte, ce que propose chaque parti.
       </p>
-      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6, marginBottom: 16 }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: wide ? "wrap" : "nowrap",
+          gap: 8,
+          overflowX: wide ? "visible" : "auto",
+          paddingBottom: 6,
+          marginBottom: 16,
+        }}
+      >
         {themeKeys.map((k) => (
           <button
             key={k}
@@ -361,27 +416,49 @@ function CompareView() {
         ))}
       </div>
 
-      {PARTIES.map((p) => (
-        <div
-          key={p.id}
-          style={{
-            background: theme === "critique" ? "#FBF9F3" : "#FFFFFF",
-            borderLeft: `4px solid ${p.color}`,
-            borderRadius: 3,
-            boxShadow: "0 1px 2px rgba(27,34,48,0.08)",
-            padding: "13px 15px",
-            marginBottom: 10,
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
-            <span style={{ fontWeight: 700, fontSize: 15, color: "#1B2230" }}>{p.short}</span>
-            <span style={{ fontSize: 12, color: "#8A8578" }}>{p.name}</span>
+      <div
+        style={{
+          display: wide ? "grid" : "block",
+          gridTemplateColumns: wide ? "repeat(auto-fit, minmax(185px, 1fr))" : undefined,
+          gap: wide ? 12 : 0,
+          alignItems: "stretch",
+        }}
+      >
+        {PARTIES.map((p) => (
+          <div
+            key={p.id}
+            style={{
+              background: theme === "critique" ? "#FBF9F3" : "#FFFFFF",
+              borderTop: wide ? `4px solid ${p.color}` : "none",
+              borderLeft: wide ? "1px solid #EFEDE3" : `4px solid ${p.color}`,
+              borderRight: wide ? "1px solid #EFEDE3" : "none",
+              borderBottom: wide ? "1px solid #EFEDE3" : "none",
+              borderRadius: 3,
+              boxShadow: "0 1px 2px rgba(27,34,48,0.08)",
+              padding: "13px 15px",
+              marginBottom: wide ? 0 : 10,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+                gap: 6,
+                marginBottom: 6,
+                paddingBottom: 6,
+                borderBottom: "1px solid #EFEDE3",
+              }}
+            >
+              <span style={{ fontWeight: 700, fontSize: 15, color: p.color }}>{p.short}</span>
+              <span style={{ fontSize: 11.5, color: "#8A8578", textAlign: "right" }}>{p.name}</span>
+            </div>
+            <div style={{ fontSize: wide ? 13.5 : 14.5, color: "#3A3A34", lineHeight: 1.55 }}>
+              {theme === "critique" ? p.critique : p.themes[theme]}
+            </div>
           </div>
-          <div style={{ fontSize: 14.5, color: "#3A3A34", lineHeight: 1.55 }}>
-            {theme === "critique" ? p.critique : p.themes[theme]}
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
@@ -390,6 +467,10 @@ function QuizView() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState(Array(QUESTIONS.length).fill(null));
   const [done, setDone] = useState(false);
+  const wide = useIsWide();
+
+  // Le test se lit mieux en colonne étroite, même sur grand écran.
+  const shell = { maxWidth: 620, margin: wide ? "0 auto" : undefined };
 
   const results = useMemo(() => {
     if (!done) return [];
@@ -428,7 +509,7 @@ function QuizView() {
   if (done) {
     const top = results[0];
     return (
-      <div>
+      <div style={shell}>
         <h2 style={{ fontFamily: "Georgia, serif", fontSize: 21, color: "#1B2230", margin: "6px 0 4px" }}>
           Vos résultats
         </h2>
@@ -498,7 +579,7 @@ function QuizView() {
   }
 
   return (
-    <div>
+    <div style={shell}>
       <div
         style={{
           background: "#FFFFFF",
@@ -611,6 +692,7 @@ function QuizView() {
 }
 
 function DistinctionsView() {
+  const wide = useIsWide();
   return (
     <div>
       <p style={{ fontSize: 14.5, color: "#5B5648", lineHeight: 1.6, margin: "4px 0 18px" }}>
@@ -618,6 +700,14 @@ function DistinctionsView() {
         qui les distingue vraiment, au-delà des grandes lignes communes.
       </p>
 
+      <div
+        style={{
+          display: wide ? "grid" : "block",
+          gridTemplateColumns: wide ? "1fr 1fr" : undefined,
+          gap: wide ? 14 : 0,
+          alignItems: "start",
+        }}
+      >
       {PARTIES.map((p) => (
         <div
           key={p.id}
@@ -625,7 +715,7 @@ function DistinctionsView() {
             background: "#FFFFFF",
             borderRadius: 4,
             boxShadow: "0 1px 2px rgba(27,34,48,0.08)",
-            marginBottom: 14,
+            marginBottom: wide ? 0 : 14,
             overflow: "hidden",
           }}
         >
@@ -676,6 +766,7 @@ function DistinctionsView() {
           </div>
         </div>
       ))}
+      </div>
 
       <div
         style={{
@@ -699,8 +790,115 @@ function DistinctionsView() {
   );
 }
 
+function SearchView({ query, onClear }) {
+  const wide = useIsWide();
+  const q = norm(query);
+
+  const results = PARTIES.map((p) => {
+    const hits = [];
+    Object.entries(THEME_LABELS).forEach(([key, label]) => {
+      if (norm(label).includes(q) || norm(p.themes[key]).includes(q)) {
+        hits.push({ label, text: p.themes[key] });
+      }
+    });
+    const critiqueHit =
+      norm(p.critique).includes(q) || norm(p.tagline).includes(q) || norm(p.ideologie).includes(q);
+    return { p, hits, critiqueHit };
+  });
+  const totalHits = results.reduce((n, r) => n + r.hits.length + (r.critiqueHit ? 1 : 0), 0);
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, margin: "2px 0 16px" }}>
+        <p style={{ fontSize: 14.5, color: "#5B5648", lineHeight: 1.55, margin: 0 }}>
+          {totalHits > 0 ? (
+            <>Ce que dit chaque parti sur <strong style={{ color: "#1B2230" }}>«&nbsp;{query.trim()}&nbsp;»</strong>.</>
+          ) : (
+            <>Aucun parti ne mentionne <strong style={{ color: "#1B2230" }}>«&nbsp;{query.trim()}&nbsp;»</strong> dans les résumés du site.</>
+          )}
+        </p>
+        <button
+          onClick={onClear}
+          style={{ flex: "0 0 auto", background: "none", border: "none", color: "#2F6B52", fontSize: 13.5, fontWeight: 600, cursor: "pointer", padding: 0 }}
+        >
+          ✕ effacer
+        </button>
+      </div>
+
+      <div
+        style={{
+          display: wide ? "grid" : "block",
+          gridTemplateColumns: wide ? "1fr 1fr" : undefined,
+          gap: wide ? 14 : 0,
+          alignItems: "start",
+        }}
+      >
+        {results.map(({ p, hits, critiqueHit }) => {
+          const empty = hits.length === 0 && !critiqueHit;
+          return (
+            <div
+              key={p.id}
+              style={{
+                background: "#FFFFFF",
+                borderLeft: `4px solid ${p.color}`,
+                borderRadius: 3,
+                boxShadow: "0 1px 2px rgba(27,34,48,0.08)",
+                padding: "13px 15px",
+                marginBottom: wide ? 0 : 10,
+                opacity: empty ? 0.72 : 1,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  gap: 6,
+                  marginBottom: empty ? 0 : 8,
+                  paddingBottom: 6,
+                  borderBottom: "1px solid #EFEDE3",
+                }}
+              >
+                <span style={{ fontWeight: 700, fontSize: 15, color: p.color }}>{p.short}</span>
+                <span style={{ fontSize: 11.5, color: "#8A8578", textAlign: "right" }}>{p.name}</span>
+              </div>
+
+              {empty ? (
+                <div style={{ fontSize: 14, color: "#8A8578", fontStyle: "italic" }}>
+                  Aucun résultat pour {p.name}.
+                </div>
+              ) : (
+                <>
+                  {hits.map((h, i) => (
+                    <div
+                      key={i}
+                      style={{ padding: "9px 0", borderBottom: i < hits.length - 1 || critiqueHit ? "1px solid #F1EFE6" : "none" }}
+                    >
+                      <div style={{ fontSize: 12.5, fontWeight: 700, color: p.color, marginBottom: 3 }}>{h.label}</div>
+                      <div style={{ fontSize: 14, color: "#3A3A34", lineHeight: 1.55 }}>{highlight(h.text, query)}</div>
+                    </div>
+                  ))}
+                  {critiqueHit && (
+                    <div style={{ padding: "9px 0" }}>
+                      <div style={{ fontSize: 12.5, fontWeight: 700, color: "#5B5648", marginBottom: 3 }}>⚖ Regard critique</div>
+                      <div style={{ fontSize: 14, color: "#3A3A34", lineHeight: 1.55 }}>{highlight(p.critique, query)}</div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState("fiches");
+  const [query, setQuery] = useState("");
+  const wide = useIsWide();
+  const searching = query.trim().length >= 2;
 
   const TABS = [
     { id: "fiches", label: "Fiches" },
@@ -711,15 +909,21 @@ export default function App() {
 
   return (
     <div style={{ background: "#EFEDE3", minHeight: "100%", fontFamily: "-apple-system, 'Segoe UI', sans-serif" }}>
-      <div style={{ maxWidth: 480, margin: "0 auto", padding: "22px 16px 40px" }}>
-        <header style={{ marginBottom: 20 }}>
+      <div
+        style={{
+          maxWidth: wide ? 1080 : 480,
+          margin: "0 auto",
+          padding: wide ? "36px 40px 64px" : "22px 16px 40px",
+        }}
+      >
+        <header style={{ marginBottom: wide ? 26 : 20 }}>
           <div style={{ fontSize: 12.5, color: "#2F6B52", fontWeight: 700, letterSpacing: 0.3 }}>
             Élections générales — 5 octobre 2026
           </div>
           <h1
             style={{
               fontFamily: "Georgia, serif",
-              fontSize: 30,
+              fontSize: wide ? 40 : 30,
               color: "#1B2230",
               margin: "4px 0 6px",
               lineHeight: 1.1,
@@ -727,7 +931,7 @@ export default function App() {
           >
             Pourquoi je vote&nbsp;?
           </h1>
-          <p style={{ fontSize: 14.5, color: "#5B5648", lineHeight: 1.55, margin: 0 }}>
+          <p style={{ fontSize: 14.5, color: "#5B5648", lineHeight: 1.55, margin: 0, maxWidth: 620 }}>
             Les programmes des cinq principaux partis québécois, sans jargon. Comparez leurs engagements
             et découvrez celui qui correspond le mieux à vos valeurs.
           </p>
@@ -735,13 +939,13 @@ export default function App() {
 
         <nav
           style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            display: wide ? "flex" : "grid",
+            gridTemplateColumns: wide ? undefined : "1fr 1fr",
             gap: 4,
             background: "#FFFFFF",
             borderRadius: 4,
             padding: 4,
-            marginBottom: 20,
+            marginBottom: wide ? 26 : 20,
             boxShadow: "0 1px 2px rgba(27,34,48,0.08)",
           }}
         >
@@ -750,7 +954,8 @@ export default function App() {
               key={t.id}
               onClick={() => setTab(t.id)}
               style={{
-                padding: "9px 4px",
+                flex: wide ? "0 0 auto" : undefined,
+                padding: wide ? "10px 20px" : "9px 4px",
                 border: "none",
                 borderRadius: 3,
                 background: tab === t.id ? "#1B2230" : "transparent",
@@ -765,13 +970,48 @@ export default function App() {
           ))}
         </nav>
 
-        {tab === "fiches" && <FichesView />}
-        {tab === "comparer" && <CompareView />}
-        {tab === "distinctions" && <DistinctionsView />}
-        {tab === "quiz" && <QuizView />}
+        <div style={{ position: "relative", marginBottom: wide ? 26 : 20 }}>
+          <span
+            style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", fontSize: 15, color: "#8A8578", pointerEvents: "none" }}
+            aria-hidden="true"
+          >
+            ⌕
+          </span>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Rechercher un enjeu ou un mot-clé (logement, gaz de schiste, impôt…)"
+            aria-label="Rechercher un enjeu ou un mot-clé"
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "11px 14px 11px 34px",
+              fontSize: 14.5,
+              fontFamily: "inherit",
+              color: "#1B2230",
+              background: "#FFFFFF",
+              border: `1px solid ${searching ? "#2F6B52" : "#D9D5C7"}`,
+              borderRadius: 4,
+              boxShadow: "0 1px 2px rgba(27,34,48,0.08)",
+              outline: "none",
+            }}
+          />
+        </div>
+
+        {searching ? (
+          <SearchView query={query} onClear={() => setQuery("")} />
+        ) : (
+          <>
+            {tab === "fiches" && <FichesView />}
+            {tab === "comparer" && <CompareView />}
+            {tab === "distinctions" && <DistinctionsView />}
+            {tab === "quiz" && <QuizView />}
+          </>
+        )}
 
         <footer style={{ marginTop: 30, paddingTop: 16, borderTop: "1px solid #D9D5C7" }}>
-          <p style={{ fontSize: 12, color: "#8A8578", lineHeight: 1.6, margin: 0 }}>
+          <p style={{ fontSize: 12, color: "#8A8578", lineHeight: 1.6, margin: 0, maxWidth: 720 }}>
             Résumés non partisans, à jour au 9 septembre 2026. Pour la CAQ, le PCQ, le PLQ et QS,
             compilés directement à partir des documents officiels des partis (cadre financier,
             plateforme, pages d'engagements). Pour le PQ, compilés à partir de la couverture de presse
