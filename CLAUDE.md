@@ -30,6 +30,20 @@ dans le composant. Si le projet grossit, envisager d'extraire `PARTIES` etc.
 dans des fichiers séparés (`src/data/parties.js`), mais ce n'est pas fait à
 ce jour.
 
+## Compteur de visites (seule partie non statique)
+
+`api/views.js` est une fonction serverless Vercel qui incrémente une clé
+`pjv:views` dans un Redis Upstash (`@upstash/redis`). Le composant `useViews()`
+dans `src/App.jsx` l'appelle au montage (POST une fois par session d'onglet via
+`sessionStorage`, sinon GET) et affiche une pastille dans le `<header>`.
+
+- Variables d'environnement requises côté Vercel : `KV_REST_API_URL` +
+  `KV_REST_API_TOKEN`, ou `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`.
+- Sans ces variables, ou en cas d'erreur, la fonction renvoie `{ count: null }`
+  et le site masque simplement la pastille. Ne jamais faire planter le rendu
+  pour un échec du compteur.
+- En local, le compteur ne s'affiche qu'avec `vercel dev` + les variables.
+
 ## Règles à respecter pour toute modification de contenu
 
 1. **Ne jamais ajouter de fait, chiffre ou promesse sans source vérifiable.**

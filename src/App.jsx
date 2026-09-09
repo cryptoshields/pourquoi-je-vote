@@ -15,6 +15,38 @@ function useIsWide(bp = WIDE_BP) {
   return wide;
 }
 
+/* Compteur de visites. Incrémente une fois par session d'onglet, sinon
+   se contente de lire le total. En cas d'échec réseau ou de compteur non
+   configuré (count === null), l'appelant masque simplement l'affichage. */
+function useViews() {
+  const [count, setCount] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    let counted = false;
+    try {
+      counted = sessionStorage.getItem("pjv_v") === "1";
+    } catch (e) {
+      /* sessionStorage indisponible (navigation privée) */
+    }
+    fetch("/api/views", { method: counted ? "GET" : "POST" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!alive) return;
+        setCount(typeof d.count === "number" ? d.count : null);
+        try {
+          sessionStorage.setItem("pjv_v", "1");
+        } catch (e) {
+          /* ignore */
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return count;
+}
+
 /* Normalise pour la recherche : minuscules, sans accents. */
 const norm = (s) =>
   (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -898,6 +930,7 @@ export default function App() {
   const [tab, setTab] = useState("fiches");
   const [query, setQuery] = useState("");
   const wide = useIsWide();
+  const views = useViews();
   const searching = query.trim().length >= 2;
 
   const TABS = [
@@ -935,6 +968,26 @@ export default function App() {
             Les programmes des cinq principaux partis québécois, sans jargon. Comparez leurs engagements
             et découvrez celui qui correspond le mieux à vos valeurs.
           </p>
+          {views != null && (
+            <div
+              style={{
+                marginTop: 14,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "6px 12px",
+                borderRadius: 20,
+                background: "#2F6B521A",
+                border: "1px solid #2F6B5240",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#2F6B52",
+              }}
+            >
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#2F6B52", display: "inline-block" }} aria-hidden="true" />
+              {views.toLocaleString("fr-CA")} visite{views === 1 ? "" : "s"}
+            </div>
+          )}
         </header>
 
         <nav
