@@ -2,7 +2,7 @@ name: Déploiement production (Vercel)
 
 # Déploie sur Vercel à chaque push sur main, sans passer par l'intégration
 # Git native de Vercel (les comptes GitHub et Vercel restent séparés).
-# Requiert un secret de dépôt : VERCEL_TOKEN (jeton Vercel, portée = équipe).
+# Requiert un secret de dépôt : VERCEL_TOKEN (jeton Vercel).
 
 on:
   push:
@@ -29,11 +29,10 @@ jobs:
       - name: Installer Vercel CLI
         run: npm install -g vercel@latest
 
-      - name: Récupérer la configuration du projet
-        run: vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+      - name: Lier le projet
+        run: |
+          mkdir -p .vercel
+          printf '{"projectId":"%s","orgId":"%s"}' "$VERCEL_PROJECT_ID" "$VERCEL_ORG_ID" > .vercel/project.json
 
-      - name: Construire
-        run: vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
-
-      - name: Déployer
-        run: vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
+      - name: Déployer (build côté Vercel)
+        run: vercel deploy --prod --yes --token="${{ secrets.VERCEL_TOKEN }}"
