@@ -30,10 +30,10 @@ jobs:
         run: npm install -g vercel@latest
 
       - name: Récupérer la configuration du projet
-        run: vercel pull --yes --environment=production --scope="$VERCEL_ORG_ID" --token="${{ secrets.VERCEL_TOKEN }}"
+        run: vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
 
       - name: Construire
         run: vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
 
       - name: Déployer
-        run: vercel deploy --prebuilt --prod --scope="$VERCEL_ORG_ID" --token="${{ secrets.VERCEL_TOKEN }}"
+        run: vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
