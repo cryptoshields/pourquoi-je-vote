@@ -51,6 +51,7 @@ const PARTIES = [
     short: "CAQ",
     leader: "Christine Fréchette",
     color: "#0F4C81",
+    site: "https://coalitionavenirquebec.org/fr/",
     tagline: "Le parti sortant, qui mise sur la continuité et le portefeuille des familles.",
     ideologie: "Centre droit, nationaliste et autonomiste — un Québec fort dans la fédération canadienne.",
     themes: {
@@ -70,6 +71,7 @@ const PARTIES = [
     short: "PLQ",
     leader: "Charles Milliard",
     color: "#C8102E",
+    site: "https://plq.org/",
     tagline: "Se présente comme l'équipe économique, portée sur la construction et les PME.",
     ideologie: "Centre à centre droit, fédéraliste, libéralisme économique.",
     themes: {
@@ -89,6 +91,7 @@ const PARTIES = [
     short: "QS",
     leader: "Ruba Ghazal & Sol Zanetti",
     color: "#FF7A00",
+    site: "https://quebecsolidaire.net/",
     tagline: "Mise sur le logement social, les services publics et la redistribution de la richesse.",
     ideologie: "Gauche, social-démocrate, souverainiste et écologiste.",
     themes: {
@@ -108,6 +111,7 @@ const PARTIES = [
     short: "PQ",
     leader: "Paul St-Pierre Plamondon",
     color: "#1B98D5",
+    site: "https://pq.org/",
     tagline: "Fait de l'indépendance du Québec sa promesse phare, appuyée sur un « Livre bleu » de 551 pages.",
     ideologie: "Centre gauche à attrape-tout, souverainiste et nationaliste.",
     themes: {
@@ -133,6 +137,7 @@ const PARTIES = [
     short: "PCQ",
     leader: "Éric Duhaime",
     color: "#7A3B9C",
+    site: "https://conservateur.quebec/",
     tagline: "Priorité à la baisse d'impôt, à la déréglementation et à l'autonomie du Québec dans le Canada.",
     ideologie: "Droite, fédéraliste-autonomiste, libéralisme économique et conservatisme.",
     themes: {
@@ -354,10 +359,10 @@ function PartyCard({ party, expanded, onToggle, wide }) {
             </div>
           </div>
 
-          {party.sources && (
+          {(party.site || party.sources) && (
             <div style={{ marginTop: 10, padding: "12px 14px", background: "#FFFFFF", borderRadius: 3, border: "1px dashed #D9D5C7" }}>
               <div style={{ fontSize: 12.5, fontWeight: 700, color: "#5B5648", marginBottom: 5, display: "flex", alignItems: "center", gap: 6 }}>
-                <span>🔗</span> Sources (site du parti)
+                <span>🔗</span> Sources officielles
               </div>
               {party.sourceNote && (
                 <div style={{ fontSize: 13, color: "#5B5648", lineHeight: 1.5, marginBottom: 8 }}>
@@ -365,7 +370,17 @@ function PartyCard({ party, expanded, onToggle, wide }) {
                 </div>
               )}
               <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {party.sources.map((s, i) => (
+                {party.site && (
+                  <a
+                    href={party.site}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: 13.5, color: "#2F6B52", fontWeight: 600, textDecoration: "none", lineHeight: 1.4 }}
+                  >
+                    ↗ Site officiel du parti
+                  </a>
+                )}
+                {(party.sources || []).map((s, i) => (
                   <a
                     key={i}
                     href={s.url}
@@ -921,6 +936,37 @@ function SearchView({ query, onClear }) {
             </div>
           );
         })}
+      </div>
+
+      <div
+        style={{
+          marginTop: 18,
+          padding: "13px 15px",
+          background: "#FBF9F3",
+          borderRadius: 3,
+          border: "1px solid #EFEDE3",
+        }}
+      >
+        <div style={{ fontSize: 12.5, fontWeight: 700, color: "#5B5648", marginBottom: 4 }}>
+          Pour aller plus loin
+        </div>
+        <div style={{ fontSize: 13, color: "#5B5648", lineHeight: 1.5, marginBottom: 8 }}>
+          Cet outil ne couvre que sept enjeux. Pour le détail complet et la source primaire,
+          consultez directement le site officiel de chaque parti :
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 16px" }}>
+          {PARTIES.map((p) => (
+            <a
+              key={p.id}
+              href={p.site}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: 13.5, fontWeight: 600, color: p.color, textDecoration: "none" }}
+            >
+              ↗ {p.short}
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );
