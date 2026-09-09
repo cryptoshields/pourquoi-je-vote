@@ -108,18 +108,24 @@ const PARTIES = [
     short: "PQ",
     leader: "Paul St-Pierre Plamondon",
     color: "#1B98D5",
-    tagline: "Fait de l'indépendance du Québec sa promesse phare, appuyée sur un « Projet national » détaillé.",
+    tagline: "Fait de l'indépendance du Québec sa promesse phare, appuyée sur un « Livre bleu » de 551 pages.",
     ideologie: "Centre gauche à attrape-tout, souverainiste et nationaliste.",
     themes: {
-      fiscalite: "Promet d'abolir la TVQ sur les biens usagés (autos, électroménagers) — une économie estimée à environ 3000 $/an pour une famille.",
-      logement: "Priorité à la baisse des coûts de construction et du fardeau réglementaire; peu de mesures détaillées publiées à ce jour au-delà de cet axe.",
-      sante: "Abolirait Santé Québec, décentraliserait la gestion vers les régions et réinvestirait dans les CLSC et les chirurgies.",
-      immigration: "Position plus restrictive; le chef a dû clarifier des propos jugés controversés sur l'immigration en début de campagne.",
+      fiscalite: "Promet d'abolir la TVQ sur les biens usagés (autos, meubles, électroménagers, articles de sport, jouets, vêtements) dès le lendemain d'une élection — « des milliers de dollars par an » d'économie pour une famille selon le parti, une mesure qu'il chiffre lui-même à un maximum de 700 M$ par année (source : presse). N'a pas publié de cadre financier provincial complet; son argumentaire budgétaire porte surtout sur les finances d'un Québec indépendant (revenus fédéraux prélevés au Québec estimés par le parti à 82,3 G$/an, économies de dédoublements de 8,8 G$/an).",
+      logement: "Priorité affichée à la baisse des coûts de construction et du fardeau réglementaire; peu de mesures détaillées publiées à ce jour.",
+      sante: "S'oppose à la centralisation opérée par Santé Québec et privilégie une gestion décentralisée vers les régions ainsi qu'un réinvestissement dans les CLSC; peu de mesures chiffrées à ce jour (source : presse).",
+      immigration: "Plan d'immigration officiel : environ 35 000 résidents permanents par an, et une baisse de l'immigration temporaire à 250 000–300 000 personnes sur un mandat (réduction d'au moins 50 %), dont environ 40 000 au Programme des travailleurs étrangers temporaires et environ 50 000 étudiants étrangers. Exige un français de niveau intermédiaire à l'entrée, remplacerait les permis de travail fermés par des permis régionaux et sectoriels, et accueillerait les demandeurs d'asile au prorata du poids démographique du Québec (22 %) jusqu'à l'indépendance. Veut aussi étendre la loi 101 au cégep (source : presse).",
       environnement: "Peu de mesures détaillées rendues publiques à ce jour.",
-      education: "Volet numérique développé dans le « Projet national » (IA, souveraineté numérique) davantage que des mesures scolaires concrètes.",
-      national: "Promet un référendum sur l'indépendance du Québec dès un premier mandat.",
+      education: "Peu de mesures scolaires chiffrées à ce jour; l'accent est mis sur le renforcement du français à l'école (source : presse).",
+      national: "Promet un référendum sur l'indépendance dans un premier mandat, mais s'engage à ne pas le tenir tant que Donald Trump est président des États-Unis — donc pas avant janvier 2029 (source : presse). Son « Livre bleu sur l'indépendance » (551 pages, juillet 2026) détaille le processus d'accession : constitution provisoire, commission itinérante de consultation (1 à 2 ans), puis, 2 à 4 ans après l'indépendance effective, une assemblée constituante chargée de rédiger la constitution définitive. Le parti présente ce document comme une « première version » à compléter « avec les moyens de l'État » s'il est élu.",
     },
-    critique: "Une partie des économies chiffrées par le PQ (dont 1,6 G$ liés à la débureaucratisation de l'État) s'appuie sur des dépassements de coûts informatiques révélés en cours de campagne, dont les détails restaient à préciser. La promesse d'un référendum dès un premier mandat soulève aussi, selon des économistes et des gens d'affaires cités dans la presse, des questions sur l'impact d'une période d'incertitude constitutionnelle sur l'investissement au Québec.",
+    critique: "Contrairement aux quatre autres partis, le PQ n'a pas publié de plateforme électorale unique ni de cadre financier provincial détaillé. Son « Livre bleu » porte uniquement sur l'indépendance et se décrit lui-même comme une « première version » appelée à être complétée plus tard; sur des pans entiers de l'action gouvernementale courante (santé, logement, éducation), les engagements restent peu détaillés. La promesse d'un référendum dans un premier mandat soulève par ailleurs, selon des économistes et des gens d'affaires cités dans la presse, des questions sur l'effet d'une période d'incertitude constitutionnelle sur l'investissement.",
+    sourceNote: "Le PQ n'a pas publié de plateforme unique ni de cadre financier détaillé. Ce résumé combine plusieurs pages de son site (indépendance, immigration); les enjeux qu'il n'a pas encore détaillés (santé, logement, éducation, environnement) s'appuient sur la couverture de presse et sont signalés comme tels.",
+    sources: [
+      { label: "Section « Indépendance » — pq.org", url: "https://pq.org/independance/" },
+      { label: "« Livre bleu sur l'indépendance » (PDF, juillet 2026)", url: "https://pq.org/wp-content/uploads/2026/07/PQ_Livre-bleu-pages.pdf" },
+      { label: "Plan d'immigration — pq.org", url: "https://pq.org/independance/plan-immigration/" },
+    ],
   },
   {
     id: "pcq",
@@ -235,8 +241,8 @@ const EXCLUSIVE_OFFERS = {
     "Contraception et produits d'hygiène menstruelle gratuits",
   ],
   pq: [
-    "Seul parti à promettre un référendum sur l'indépendance dès un premier mandat",
-    "Plateforme organisée autour d'un document unique, le « Projet national » (90 pages)",
+    "Seul parti à promettre un référendum sur l'indépendance dans un premier mandat (mais pas avant 2029, tant que Donald Trump est président)",
+    "« Livre bleu sur l'indépendance » : 551 pages sur les mécanismes d'un Québec souverain, le document le plus étoffé sur la question",
   ],
   pcq: [
     "Assurance privée duplicative en santé, avec le principe où « l'argent suit le patient »",
@@ -347,6 +353,32 @@ function PartyCard({ party, expanded, onToggle, wide }) {
               {party.critique}
             </div>
           </div>
+
+          {party.sources && (
+            <div style={{ marginTop: 10, padding: "12px 14px", background: "#FFFFFF", borderRadius: 3, border: "1px dashed #D9D5C7" }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: "#5B5648", marginBottom: 5, display: "flex", alignItems: "center", gap: 6 }}>
+                <span>🔗</span> Sources (site du parti)
+              </div>
+              {party.sourceNote && (
+                <div style={{ fontSize: 13, color: "#5B5648", lineHeight: 1.5, marginBottom: 8 }}>
+                  {party.sourceNote}
+                </div>
+              )}
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {party.sources.map((s, i) => (
+                  <a
+                    key={i}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: 13.5, color: "#2F6B52", fontWeight: 600, textDecoration: "none", lineHeight: 1.4 }}
+                  >
+                    ↗ {s.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -1014,13 +1046,15 @@ export default function App() {
           <p style={{ fontSize: 12, color: "#8A8578", lineHeight: 1.6, margin: 0, maxWidth: 720 }}>
             Résumés non partisans, à jour au 9 septembre 2026. Pour la CAQ, le PCQ, le PLQ et QS,
             compilés directement à partir des documents officiels des partis (cadre financier,
-            plateforme, pages d'engagements). Pour le PQ, compilés à partir de la couverture de presse
-            électorale (Le Devoir, Radio-Canada, La Presse, CBC/CTV, Noovo), en attendant la validation
-            à venir avec son site officiel. Le « regard critique » reflète des questions et réserves
-            relevées par des journalistes, économistes et experts cités dans la presse — pas une opinion
-            de cet outil. Les plateformes complètes ne sont pas toutes finalisées et peuvent évoluer
-            avant le scrutin du 5 octobre. Le test de valeurs est un outil de réflexion personnelle, pas
-            une recommandation de vote.
+            plateforme, pages d'engagements). Pour le PQ, l'indépendance et l'immigration sont tirées
+            de son site officiel (« Livre bleu », plan d'immigration, liens dans sa fiche); faute de
+            plateforme détaillée ou de cadre financier publiés, les autres enjeux s'appuient sur la
+            couverture de presse (Le Devoir, Radio-Canada, La Presse) et sont signalés comme tels.
+            Le « regard critique » reflète des questions et réserves relevées par des journalistes,
+            économistes et experts cités dans la presse, ou par les documents officiels des partis
+            eux-mêmes — pas une opinion de cet outil. Les plateformes complètes ne sont pas toutes
+            finalisées et peuvent évoluer avant le scrutin du 5 octobre. Le test de valeurs est un
+            outil de réflexion personnelle, pas une recommandation de vote.
           </p>
         </footer>
       </div>

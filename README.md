@@ -55,11 +55,13 @@ Quatre sections, accessibles par un menu à onglets (grille 2×2 sur mobile) :
 | PLQ | ✅ Officiel | plq.org/engagements |
 | QS | ✅ Officiel | quebecsolidaire.net/theme/{logement, coutdelavie, environnement, financespubliques, independance} |
 | PCQ | ✅ Officiel | conservateur.quebec/documents-officiels — Plateforme électorale 2026 (PDF) + Cadre financier PCQ 2026 (PDF) |
-| PQ | ⏳ Presse seulement | À valider avec le « Projet national » (document officiel de 90 pages, mai 2026) et pq.org |
+| PQ | ◐ Partiel | Indépendance + immigration : site officiel (« Livre bleu sur l'indépendance », 551 p. juillet 2026 ; page Plan d'immigration). Santé, logement, éducation, environnement : presse — le PQ n'a pas publié de plateforme unique ni de cadre financier. |
 
-**Prochaine étape prioritaire : sourcer le PQ officiellement**, puis mettre à
-jour la note de bas de page en conséquence (actuellement elle nomme
-explicitement le PQ comme la seule source encore basée sur la presse).
+**Le PQ n'a pas d'équivalent au cadre financier / à la plateforme des 4 autres
+partis.** Ce qui est sourçable officiellement (indépendance, immigration) l'est ;
+le reste reste marqué « source : presse » dans le texte et la fiche du PQ liste
+ses sources pq.org directement. Réviser si le PQ publie une plateforme détaillée
+avant le 5 octobre.
 
 ## Corrections effectuées en cours de route (pour éviter de les réintroduire)
 
