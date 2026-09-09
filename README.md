@@ -86,16 +86,12 @@ explicitement le PQ comme la seule source encore basée sur la presse).
 
 - **Vite + React 18**, un seul composant (`src/App.jsx`) contenant toutes les
   données et la logique — pas de librairie UI externe, styles en ligne.
-- Le site est statique, à une exception près : `api/views.js`, une petite
-  fonction serverless Vercel qui incrémente un compteur de visites dans un
-  Redis Upstash (`@upstash/redis`). Sans les variables d'environnement Redis,
-  la fonction renvoie `{ count: null }` et le site masque le compteur — tout
-  le reste fonctionne.
-- Mise en page responsive : bascule mobile / bureau à 768&nbsp;px
-  (`useIsWide()` dans `src/App.jsx`).
+- Pas de backend, pas de base de données. Tout est statique.
+- Mise en page responsive : bascule mobile / bureau à 768 px (`useIsWide()`
+  dans `src/App.jsx`) ; le champ de recherche filtre les résumés de tous les
+  partis par mot-clé.
 - Build : `npm install && npm run build` → dossier `dist/`.
-- Dev local : `npm run dev` (le compteur ne fonctionne qu'avec `vercel dev`
-  + les variables Redis).
+- Dev local : `npm run dev`.
 
 ## Déploiement (Vercel)
 
@@ -104,10 +100,6 @@ explicitement le PQ comme la seule source encore basée sur la presse).
 3. Vercel détecte Vite/React automatiquement, aucun réglage à changer.
 4. Domaine généré automatiquement (`*.vercel.app`), domaine personnalisé
    configurable ensuite dans Project → Settings → Domains.
-5. Compteur de visites : ajouter un Redis Upstash (Vercel → Storage, ou un
-   compte upstash.com) et définir `KV_REST_API_URL` + `KV_REST_API_TOKEN`
-   (ou `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`) dans les
-   variables d'environnement du projet.
 
 ## Structure des fichiers
 
@@ -116,8 +108,6 @@ pourquoi-je-vote/
 ├── index.html
 ├── package.json
 ├── vite.config.js
-├── api/
-│   └── views.js          # fonction serverless Vercel : compteur de visites (Redis Upstash)
 ├── src/
 │   ├── main.jsx        # point d'entrée React
 │   ├── index.css        # reset minimal
