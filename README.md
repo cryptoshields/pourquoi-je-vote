@@ -1,4 +1,4 @@
-# Je Vote
+# Pourquoi je vote ?
 
 Site de comparaison non partisane des 5 principaux partis aux élections générales
 québécoises du **5 octobre 2026** — CAQ, PLQ, QS, PQ, PCQ. Conçu pour que
@@ -101,7 +101,7 @@ explicitement le PQ comme la seule source encore basée sur la presse).
 ## Structure des fichiers
 
 ```
-je-vote/
+pourquoi-je-vote/
 ├── index.html
 ├── package.json
 ├── vite.config.js

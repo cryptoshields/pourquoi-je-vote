@@ -536,7 +536,7 @@ function QuizView() {
       </div>
 
       <div style={{ fontSize: 12.5, fontWeight: 700, color: "#8A8578", marginBottom: 4, letterSpacing: 0.3 }}>
-        OU — LE TEST RAPIDE DE JE VOTE
+        OU — LE TEST RAPIDE DE POURQUOI JE VOTE
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18, marginTop: 8 }}>
@@ -725,7 +725,7 @@ export default function App() {
               lineHeight: 1.1,
             }}
           >
-            Je Vote
+            Pourquoi je vote&nbsp;?
           </h1>
           <p style={{ fontSize: 14.5, color: "#5B5648", lineHeight: 1.55, margin: 0 }}>
             Les programmes des cinq principaux partis québécois, sans jargon. Comparez leurs engagements
